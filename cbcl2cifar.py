@@ -81,7 +81,8 @@ def cleanup_files():
     for fn in [
             'README', 'svm.test.normgrey', 'svm.train.normgrey',
             'face.test.tar.gz', 'face.train.tar.gz']:
-        os.remove(fn)
+        if os.path.isfile(fn):
+            os.remove(fn)
     shutil.rmtree('test')
     shutil.rmtree('train')
 
