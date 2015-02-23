@@ -1,0 +1,43 @@
+diff --git a/convdata.py b/convdata.py
+index a65a5ea..e4b44a5 100644
+--- a/convdata.py
++++ b/convdata.py
+@@ -56,6 +56,25 @@ class CIFARDataProvider(LabeledMemoryDataProvider):
+     def get_plottable_data(self, data):
+         return n.require((data + self.data_mean).T.reshape(data.shape[1], 3, self.img_size, self.img_size).swapaxes(1,3).swapaxes(1,2) / 255.0, dtype=n.single)
+ 
++class CBCLDataProvider(CIFARDataProvider):
++    def __init__(self, data_dir, batch_range, init_epoch=1, init_batchnum=None, dp_params={}, test=False):
++        CIFARDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
++        self.num_colors = 1
++        self.img_size = 19
++
++    def get_plottable_data(self, data):
++        return n.require(data.T.reshape(data.shape[1], self.img_size, self.img_size)/255.0, dtype=n.single)
++
++class NORBDataProvider(CIFARDataProvider):
++    def __init__(self, data_dir, batch_range, init_epoch=1, init_batchnum=None, dp_params={}, test=False):
++        CIFARDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
++        self.num_colors = 1
++        self.img_size = 108
++
++    def get_plottable_data(self, data):
++        return n.require(data.T.reshape(data.shape[1], self.img_size, self.img_size)/255.0, dtype=n.single)
++
++
+ class CroppedCIFARDataProvider(LabeledMemoryDataProvider):
+     def __init__(self, data_dir, batch_range=None, init_epoch=1, init_batchnum=None, dp_params=None, test=False):
+         LabeledMemoryDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
+diff --git a/convnet.py b/convnet.py
+index ea09468..b209320 100644
+--- a/convnet.py
++++ b/convnet.py
+@@ -189,6 +189,8 @@ class ConvNet(IGPUModel):
+         op.options["num_epochs"].default = 50000
+         op.options['dp_type'].default = None
+ 
++        DataProvider.register_data_provider('cbcl', 'CBCL', CBCLDataProvider)
++        DataProvider.register_data_provider('norb', 'NORB', NORBDataProvider)
+         DataProvider.register_data_provider('cifar', 'CIFAR', CIFARDataProvider)
+         DataProvider.register_data_provider('dummy-cn-n', 'Dummy ConvNet', DummyConvNetDataProvider)
+         DataProvider.register_data_provider('cifar-cropped', 'Cropped CIFAR', CroppedCIFARDataProvider)
